@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ dev, main ]
+  pull_request:
+    branches: [ dev, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r geo_data_synthesizer/requirements.txt
+
+    - name: Run tests
+      run: |
+        # Add your test command here, for example:
+        # pytest geo_data_synthesizer/tests
+
+    - name: Build and push Docker image
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        docker build -t ghcr.io/${{ github.repository_owner }}/geo-data-synthesizer:${{ github.sha }} ./geo_data_synthesizer
+        docker push ghcr.io/${{ github.repository_owner }}/geo-data-synthesizer:${{ github.sha }}
