@@ -1,0 +1,36 @@
+# rr-synthesizer-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rr-synthesizer
+  namespace: road-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rr-synthesizer
+  template:
+    metadata:
+      labels:
+        app: rr-synthesizer
+    spec:
+      containers:
+      - name: rr-synthesizer
+        image: rr-synthesizer:0.2
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: rr-synthesizer-config
+        # You can still specify individual environment variables here if needed
+        # env:
+        # - name: SOME_SPECIFIC_VAR
+        #   value: "some_value"
+        resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"

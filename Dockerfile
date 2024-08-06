@@ -9,12 +9,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install development dependencies
 RUN pip install --no-cache-dir watchdog
+RUN apt-get update && apt-get install -y kafkacat
 
-COPY ./app /app/app
+COPY ./backend /app/backend
 
 RUN chown -R appuser:appuser /app
 
 USER appuser
 
-# Remove the CMD instruction as we're now using the command in docker-compose.yml
-# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Update this line
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

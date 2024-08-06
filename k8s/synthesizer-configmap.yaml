@@ -1,0 +1,13 @@
+# rr-synthesizer-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rr-synthesizer-config
+  namespace: road-runner
+data:
+  KAFKA_BOOTSTRAP_SERVERS: "kafka.road-runner.svc.cluster.local:9092"
+  # Add any other non-sensitive configuration variables here
+  LOG_LEVEL: "INFO"
+  # For example:
+  # MAX_CONNECTIONS: "100"
+  # WORKER_PROCESSES: "4"

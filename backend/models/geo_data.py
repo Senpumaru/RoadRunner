@@ -13,7 +13,7 @@ class GeoData:
     direction: float
 
 class GeoDataGenerator:
-    def __init__(self, num_devices=100):
+    def __init__(self, num_devices=1000):
         self.num_devices = num_devices
         self.devices = [f"device_{i}" for i in range(num_devices)]
 
@@ -30,7 +30,3 @@ class GeoDataGenerator:
 
     def get_json_data(self):
         return json.dumps(asdict(self.generate_data()))
-
-if __name__ == "__main__":
-    generator = GeoDataGenerator()
-    print(generator.get_json_data())

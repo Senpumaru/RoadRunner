@@ -1,0 +1,13 @@
+# rr-synthesizer-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: rr-synthesizer-service
+  namespace: road-runner
+spec:
+  selector:
+    app: rr-synthesizer
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
