@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from backend.models.geo_data import GeoDataGenerator
-from backend.core.kafka_producer import send_to_kafka
+from backend.models.iot_data_generator import IoTDataGenerator
+from backend.core.iot_kafka_producer import send_to_kafka
 
 router = APIRouter()
-generator = GeoDataGenerator()
+generator = IoTDataGenerator()
 
 @router.get("/")
 async def root():
