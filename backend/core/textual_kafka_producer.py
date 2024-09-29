@@ -1,12 +1,16 @@
+# textual_kafka_producer.py
+
 import socket
 import logging
 import asyncio
 import time
 from confluent_kafka import Producer
-from backend.models.geo_data import GeoDataGenerator
+from backend.models.textual_data_generator import TextualDataGenerator
 from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+producer = None
 
 async def test_kafka_connection():
     global producer
@@ -33,13 +37,13 @@ async def initialize_kafka_producer():
         logger.info(f"Attempting to initialize Kafka producer with bootstrap servers: {settings.KAFKA_BOOTSTRAP_SERVERS}")
         kafka_config = {
             'bootstrap.servers': settings.KAFKA_BOOTSTRAP_SERVERS,
-            'client.id': socket.gethostname()
+            'client.id': socket.gethostname() + "_textual"
         }
         producer = Producer(kafka_config)
-        logger.info("Kafka producer initialized successfully")
+        logger.info("Textual Kafka producer initialized successfully")
         return True
     except Exception as e:
-        logger.error(f"Failed to initialize Kafka producer: {str(e)}")
+        logger.error(f"Failed to initialize Textual Kafka producer: {str(e)}")
         return False
 
 async def close_kafka_producer():
@@ -52,7 +56,7 @@ def send_to_kafka(topic: str, message: str, max_retries=3):
     while retries < max_retries:
         if producer is None:
             logger.error(f"Kafka producer is not initialized! Attempt {retries + 1}/{max_retries}")
-            time.sleep(1)  # Wait a bit before retrying
+            time.sleep(1)
             retries += 1
             continue
         try:
@@ -62,21 +66,21 @@ def send_to_kafka(topic: str, message: str, max_retries=3):
         except Exception as e:
             logger.error(f"Failed to send message to Kafka: {str(e)}. Attempt {retries + 1}/{max_retries}")
             retries += 1
-            time.sleep(1)  # Wait a bit before retrying
+            time.sleep(1)
     raise RuntimeError(f"Failed to send message to Kafka after {max_retries} attempts")
 
-generator = GeoDataGenerator()
+generator = TextualDataGenerator()
 
-async def generate_and_send_data_continuously():
+async def generate_and_send_textual_data_continuously():
     while True:
         if producer is None:
-            logger.error("Kafka producer is not initialized. Waiting...")
+            logger.error("Textual Kafka producer is not initialized. Waiting...")
             await asyncio.sleep(5)
             continue
         data = generator.get_json_data()
         try:
-            send_to_kafka('geo_data', data)
-            logger.info(f"Sent data to Kafka: {data}")
+            send_to_kafka('textual_data', data)
+            logger.info(f"Sent textual data to Kafka: {data}")
         except Exception as e:
-            logger.error(f"Failed to send data to Kafka: {str(e)}")
-        await asyncio.sleep(0.1)
+            logger.error(f"Failed to send textual data to Kafka: {str(e)}")
+        await asyncio.sleep(0.5)  # Slower rate for textual data

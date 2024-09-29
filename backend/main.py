@@ -1,12 +1,20 @@
+# main.py
+
 from fastapi import FastAPI
 import logging
 from backend.api.routes import router as api_router
 from backend.core.config import settings
-from backend.core.kafka_producer import (
+from backend.core.iot_kafka_producer import (
     initialize_kafka_producer,
     close_kafka_producer,
-    generate_and_send_data_continuously,
+    generate_and_send_iot_data_continuously,
     test_kafka_connection
+)
+from backend.core.textual_kafka_producer import (
+    initialize_kafka_producer as initialize_textual_producer,
+    close_kafka_producer as close_textual_producer,
+    generate_and_send_textual_data_continuously,
+    test_kafka_connection as test_textual_connection
 )
 import asyncio
 
@@ -17,14 +25,25 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    initialization_success = await initialize_kafka_producer()
-    if initialization_success:
-        if await test_kafka_connection():
-            asyncio.create_task(generate_and_send_data_continuously())
+    iot_init_success = await initialize_kafka_producer()
+    textual_init_success = await initialize_textual_producer()
+    
+    if iot_init_success and textual_init_success:
+        iot_connected = await test_kafka_connection()
+        textual_connected = await test_textual_connection()
+        
+        if iot_connected and textual_connected:
+            asyncio.create_task(generate_and_send_iot_data_continuously())
+            asyncio.create_task(generate_and_send_textual_data_continuously())
         else:
-            logger.error("Failed to establish Kafka connection. Data generation task not started.")
+            logger.error("Failed to establish Kafka connection for one or both producers. Data generation tasks not started.")
     else:
-        logger.error("Failed to initialize Kafka producer. Application may not function correctly.")
+        logger.error("Failed to initialize one or both Kafka producers. Application may not function correctly.")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_kafka_producer()
+    await close_textual_producer()
 
 @app.get("/")
 async def root():
@@ -32,8 +51,13 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    kafka_connected = await test_kafka_connection()
-    if kafka_connected:
-        return {"status": "healthy", "kafka_connection": "established"}
+    iot_connected = await test_kafka_connection()
+    textual_connected = await test_textual_connection()
+    if iot_connected and textual_connected:
+        return {"status": "healthy", "iot_kafka_connection": "established", "textual_kafka_connection": "established"}
+    elif iot_connected:
+        return {"status": "partially healthy", "iot_kafka_connection": "established", "textual_kafka_connection": "failed"}
+    elif textual_connected:
+        return {"status": "partially healthy", "iot_kafka_connection": "failed", "textual_kafka_connection": "established"}
     else:
-        return {"status": "unhealthy", "kafka_connection": "failed"}
+        return {"status": "unhealthy", "iot_kafka_connection": "failed", "textual_kafka_connection": "failed"}
