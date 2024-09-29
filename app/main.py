@@ -2,15 +2,16 @@
 
 from fastapi import FastAPI
 import logging
-from backend.api.routes import router as api_router
-from backend.core.config import settings
-from backend.core.iot_kafka_producer import (
+from app.api.routes import router as api_router
+from app.core.config import settings
+from app.core.iot_kafka_producer import (
     initialize_kafka_producer,
     close_kafka_producer,
     generate_and_send_iot_data_continuously,
     test_kafka_connection
 )
-from backend.core.textual_kafka_producer import (
+from app.api.endpoints import items, users
+from app.core.textual_kafka_producer import (
     initialize_kafka_producer as initialize_textual_producer,
     close_kafka_producer as close_textual_producer,
     generate_and_send_textual_data_continuously,
@@ -20,8 +21,14 @@ import asyncio
 
 app = FastAPI(title=settings.PROJECT_NAME)
 app.include_router(api_router)
+app.include_router(items.router, prefix="/api/v1")
+# app.include_router(users.router)
 
 logger = logging.getLogger(__name__)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello from RoadRunner Synthesizer"}
 
 @app.on_event("startup")
 async def startup_event():
@@ -44,10 +51,6 @@ async def startup_event():
 async def shutdown_event():
     await close_kafka_producer()
     await close_textual_producer()
-
-@app.get("/")
-async def root():
-    return {"message": "Hello from RoadRunner Synthesizer"}
 
 @app.get("/health")
 async def health_check():

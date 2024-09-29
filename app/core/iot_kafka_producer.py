@@ -1,12 +1,12 @@
-# textual_kafka_producer.py
+# iot_kafka_producer.py
 
 import socket
 import logging
 import asyncio
 import time
 from confluent_kafka import Producer
-from backend.models.textual_data_generator import TextualDataGenerator
-from backend.core.config import settings
+from app.models.iot_data_generator import IoTDataGenerator
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -37,13 +37,13 @@ async def initialize_kafka_producer():
         logger.info(f"Attempting to initialize Kafka producer with bootstrap servers: {settings.KAFKA_BOOTSTRAP_SERVERS}")
         kafka_config = {
             'bootstrap.servers': settings.KAFKA_BOOTSTRAP_SERVERS,
-            'client.id': socket.gethostname() + "_textual"
+            'client.id': socket.gethostname() + "_iot"
         }
         producer = Producer(kafka_config)
-        logger.info("Textual Kafka producer initialized successfully")
+        logger.info("IoT Kafka producer initialized successfully")
         return True
     except Exception as e:
-        logger.error(f"Failed to initialize Textual Kafka producer: {str(e)}")
+        logger.error(f"Failed to initialize IoT Kafka producer: {str(e)}")
         return False
 
 async def close_kafka_producer():
@@ -69,18 +69,19 @@ def send_to_kafka(topic: str, message: str, max_retries=3):
             time.sleep(1)
     raise RuntimeError(f"Failed to send message to Kafka after {max_retries} attempts")
 
-generator = TextualDataGenerator()
+# Initialize the generator with a 5% chance of generating outliers
+generator = IoTDataGenerator(outlier_probability=0.05)
 
-async def generate_and_send_textual_data_continuously():
+async def generate_and_send_iot_data_continuously():
     while True:
         if producer is None:
-            logger.error("Textual Kafka producer is not initialized. Waiting...")
+            logger.error("IoT Kafka producer is not initialized. Waiting...")
             await asyncio.sleep(5)
             continue
         data = generator.get_json_data()
         try:
-            send_to_kafka('textual_data', data)
-            logger.info(f"Sent textual data to Kafka: {data}")
+            send_to_kafka('iot_data', data)
+            logger.info(f"Sent IoT data to Kafka: {data}")
         except Exception as e:
-            logger.error(f"Failed to send textual data to Kafka: {str(e)}")
-        await asyncio.sleep(0.5)  # Slower rate for textual data
+            logger.error(f"Failed to send IoT data to Kafka: {str(e)}")
+        await asyncio.sleep(0.1)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from backend.models.iot_data_generator import IoTDataGenerator
-from backend.core.iot_kafka_producer import send_to_kafka
+from app.models.iot_data_generator import IoTDataGenerator
+from app.core.iot_kafka_producer import send_to_kafka
 
 router = APIRouter()
 generator = IoTDataGenerator()
