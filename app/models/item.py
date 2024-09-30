@@ -1,8 +1,7 @@
 # app/models/item.py
-from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
+from app.db.base import Base
 
 class Item(Base):
     __tablename__ = "items"
@@ -11,6 +10,6 @@ class Item(Base):
     name = Column(String, index=True)
     description = Column(String)
     price = Column(Float)
+    owner_id = Column(Integer, ForeignKey("users.id"))
 
-    def __repr__(self):
-        return f"<Item(id={self.id}, name='{self.name}', price={self.price})>"
+    owner = relationship("User", back_populates="items")

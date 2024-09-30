@@ -6,3 +6,6 @@ watchdog
 sqlalchemy
 asyncpg
 alembic
+passlib[bcrypt]
+python-jose[cryptography]
+email-validator

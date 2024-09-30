@@ -11,6 +11,10 @@ class ItemCreate(ItemBase):
 
 class Item(ItemBase):
     id: int
+    owner_id: int
 
     class Config:
         from_attributes = True
+
+class ItemResponse(Item):
+    pass

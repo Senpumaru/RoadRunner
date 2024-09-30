@@ -22,7 +22,7 @@ import asyncio
 app = FastAPI(title=settings.PROJECT_NAME)
 app.include_router(api_router)
 app.include_router(items.router, prefix="/api/v1")
-# app.include_router(users.router)
+app.include_router(users.router, prefix="/api/v1")
 
 logger = logging.getLogger(__name__)
 
