@@ -1,8 +1,8 @@
-"""Recreate items table with owner_id
+"""Ensure autoincrement on customer id
 
-Revision ID: fd863f3819b6
-Revises: 553bd4b25132
-Create Date: 2024-09-30 11:05:06.333756
+Revision ID: f66502d5944c
+Revises: f1fac3414717
+Create Date: 2024-10-03 13:35:42.145673
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fd863f3819b6'
-down_revision: Union[str, None] = '553bd4b25132'
+revision: str = 'f66502d5944c'
+down_revision: Union[str, None] = 'f1fac3414717'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -9,3 +9,5 @@ alembic
 passlib[bcrypt]
 python-jose[cryptography]
 email-validator
+faker
+pymilvus

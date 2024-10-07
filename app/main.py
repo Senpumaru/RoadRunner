@@ -10,7 +10,10 @@ from app.core.iot_kafka_producer import (
     generate_and_send_iot_data_continuously,
     test_kafka_connection
 )
+from app.db.database import engine
+from app.db.base import Base
 from app.api.endpoints import items, users
+from app.api import data_generator
 from app.core.textual_kafka_producer import (
     initialize_kafka_producer as initialize_textual_producer,
     close_kafka_producer as close_textual_producer,
@@ -23,12 +26,18 @@ app = FastAPI(title=settings.PROJECT_NAME)
 app.include_router(api_router)
 app.include_router(items.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(data_generator.router, prefix="/generate", tags=["data-generation"])
 
 logger = logging.getLogger(__name__)
 
 @app.get("/")
 async def root():
     return {"message": "Hello from RoadRunner Synthesizer"}
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 @app.on_event("startup")
 async def startup_event():

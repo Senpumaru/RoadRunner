@@ -19,7 +19,7 @@ async def test_kafka_connection():
         return False
     try:
         metadata = producer.list_topics(timeout=10)
-        logger.info(f"Successfully connected to Kafka. Broker(s): {metadata.brokers}")
+        # logger.info(f"Successfully connected to Kafka. Broker(s): {metadata.brokers}")
         return True
     except Exception as e:
         logger.error(f"Failed to connect to Kafka: {str(e)}")
@@ -28,8 +28,8 @@ async def test_kafka_connection():
 def delivery_report(err, msg):
     if err is not None:
         logger.error(f'Message delivery failed: {err}')
-    else:
-        logger.info(f'Message delivered to {msg.topic()} [{msg.partition()}]')
+    # else:
+        # logger.info(f'Message delivered to {msg.topic()} [{msg.partition()}]')
 
 async def initialize_kafka_producer():
     global producer
@@ -40,7 +40,7 @@ async def initialize_kafka_producer():
             'client.id': socket.gethostname() + "_iot"
         }
         producer = Producer(kafka_config)
-        logger.info("IoT Kafka producer initialized successfully")
+        # logger.info("IoT Kafka producer initialized successfully")
         return True
     except Exception as e:
         logger.error(f"Failed to initialize IoT Kafka producer: {str(e)}")
@@ -81,7 +81,7 @@ async def generate_and_send_iot_data_continuously():
         data = generator.get_json_data()
         try:
             send_to_kafka('iot_data', data)
-            logger.info(f"Sent IoT data to Kafka: {data}")
+            # logger.info(f"Sent IoT data to Kafka: {data}")
         except Exception as e:
             logger.error(f"Failed to send IoT data to Kafka: {str(e)}")
         await asyncio.sleep(0.1)
